@@ -6,6 +6,7 @@ import RotatedText from "@/components/decorators/RotatedText"
 import Features from "./Features"
 import { Testimonials } from "./Testimonials"
 import Pricing from "@/components/Pricing"
+import Team from "./Team"
 
 const AuthScreen = () => {
   return (
@@ -38,6 +39,7 @@ const AuthScreen = () => {
 
             <Testimonials />
             <Pricing />
+            <Team/>
           </div>
         </div>
       </div>
