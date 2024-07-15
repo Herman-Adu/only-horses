@@ -43,12 +43,12 @@ const Sidebar = () => {
         <div className="flex lg:w-1/5 flex-col gap-3 px-2 border-r sticky left-0 top-0 h-screen">
             <Link href="/update-profile" className="max-w-fit">
                 <Avatar className="mt-4 cursor-pointer">
-					{/* <AvatarImage src={userProfile?.image || "/user-placeholder.png"} className="object-cover" /> */}
+					<AvatarImage src={"/user-placeholder.png"} className="object-cover" />
 					<AvatarFallback>CN</AvatarFallback>
 				</Avatar>
             </Link>
 
-            <nav  className="lex flex-col gap-3">
+            <nav  className="lex flex-col gap-6">
                 {SIDEBAR_LINKS.map((link) => (
 					<Link
 						key={link.href}
