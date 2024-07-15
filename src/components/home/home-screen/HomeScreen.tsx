@@ -3,7 +3,7 @@ import BaseLayout from "@/components/BaseLayout"
 
 const HomeScreen = () => {
   return (
-    <BaseLayout renderRightPanel={true}>
+    <BaseLayout>
       Home Page Content
     </BaseLayout>
   )
