@@ -18,28 +18,28 @@ const CoverImage = () => {
         />
 
         <div className="flex justify-between items-center absolute top-0 left-0 px-2 py-1 z-20 w-full">
-            <div className='flex items-center gap-2'>
-                <div className='flex flex-col text-white'>
-                    <p className='font-bold'>Herman Adu</p>
+            <div className="flex items-center gap-2">
+                <div className="flex flex-col text-white">
+                    <p className="font-bold">Herman Adu</p>
 
-                    <div className='flex gap-2 items-center'>
-                        <div className='flex items-center gap-1'>
-                            <ImageIcon className='w-4 h-4' />
-                            <span className='text-sm font-bold'>45</span>
+                    <div className="flex gap-2 items-center">
+                        <div className="flex items-center gap-1">
+                            <ImageIcon className="w-4 h-4" />
+                            <span className="text-sm font-bold">45</span>
                         </div>                    
 
-                        <span className='text-xs'>•</span>
+                        <span className="text-xs">•</span>
                     
-                        <div className='flex items-center gap-1'>
-                            <Video className='w-4 h-4' />
-                            <span className='text-sm font-bold'>67</span>
+                        <div className="flex items-center gap-1">
+                            <Video className="w-4 h-4" />
+                            <span className="text-sm font-bold">67</span>
                         </div>
 
-                        <span className='text-xs'>•</span>
+                        <span className="text-xs">•</span>
                     
-                        <div className='flex items-center gap-1'>
-                            <Heart className='w-4 h-4' />
-                            <span className='text-sm font-bold'></span>
+                        <div className="flex items-center gap-1">
+                            <Heart className="w-4 h-4" />
+                            <span className="text-sm font-bold"></span>
                         </div>
                     </div>
                 </div>
