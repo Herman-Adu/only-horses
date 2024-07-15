@@ -38,29 +38,29 @@ const teamList: TeamProps[] = [
 
 const Team = () => {
   return (
-    <section className='container py-24 sm:py-32'>
-        <h2 className='text-2xl sm:text-3xl md:text-5xl text-center tracking-tighter font-bold'>
+    <section className="container py-24 sm:py-32">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl text-center tracking-tighter font-bold">
             Our <RotatedText>Dedicated</RotatedText> Crew
         </h2>
 
-        <p className='mt-4 mb-10 text-md md:text-xl text-muted-foreground text-center'>
+        <p className="mt-4 mb-10 text-md md:text-xl text-muted-foreground text-center">
             Meet the team that makes our farm a special place for horses and riders alike.
         </p>
 
-        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10'>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10">
             {teamList.map(({ imageUrl, name, position, description }) => (
-                <Card key={name} className='bg-muted/50 relative mt-7 flex flex-col justify-center items-center'>
-                    <CardHeader className='my-8 flex justify-center items-center pb-2'>
+                <Card key={name} className="bg-muted/50 relative mt-7 flex flex-col justify-center items-center">
+                    <CardHeader className="my-8 flex justify-center items-center pb-2">
                         <img
                             src={imageUrl}
-                            alt='Team member'
-                            className='absolute -top-12 rounded-full w-24 h-24 aspect-square object-cover'
+                            alt="Team member"
+                            className="absolute -top-12 rounded-full w-24 h-24 aspect-square object-cover"
                         />
-                        <CardTitle className='text-center'>{name}</CardTitle>
-                        <CardDescription className='text-primary'>{position}</CardDescription>
+                        <CardTitle className="text-center">{name}</CardTitle>
+                        <CardDescription className="text-primary">{position}</CardDescription>
                     </CardHeader>
 
-                    <CardContent className='text-center pb-4 px-2'>
+                    <CardContent className="text-center pb-4 px-2">
                         <p>{description}</p>
                     </CardContent>
                 </Card>
