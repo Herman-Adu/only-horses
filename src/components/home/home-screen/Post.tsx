@@ -79,7 +79,7 @@ const Post = ({post, isSubscribed, admin}:{post: any, isSubscribed: boolean, adm
 
       <div className='flex gap-4'>
         <div className='flex gap-1 items-center'>
-          <Heart className={cn("w-5 h-5 cursor-pointer", {"text-red-500": isLike, "fill-red-500": isLike})} onClick={() => setIsLiked(!isLike)} />
+          <Heart className={cn("w-5 h-5 cursor-pointer", {"text-red-500 fill-red-500": isLike})} onClick={() => setIsLiked(!isLike)} />
 
           <span className='text-xs text-zinc-400 tracking-tighter'>55</span>
         </div>
