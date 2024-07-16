@@ -91,4 +91,25 @@ export const products = [
 		image: "/tshirts/3.png",
 		isArchived: false,
 	},
+	{
+		id: "4",
+		name: "Product Four",
+		price: 2199, // in cents $19.99, nice to have for stripe
+		image: "/tshirts/1.png",
+		isArchived: false,
+	},
+	{
+		id: "5",
+		name: "Product Five",
+		price: 3999, // in cents $29.99
+		image: "/tshirts/2.png",
+		isArchived: true,
+	},
+	{
+		id: "6",
+		name: "Product Six",
+		price: 5999, // in cents $39.99
+		image: "/tshirts/3.png",
+		isArchived: false,
+	},
 ];
