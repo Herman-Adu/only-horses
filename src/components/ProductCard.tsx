@@ -6,7 +6,7 @@ import { Button, buttonVariants } from "./ui/button"
 import Link from "next/link"
 
 
-const ProductCard = ({product, adminView = false}: {product:any, adminView: boolean}) => {
+const ProductCard = ({product, adminView = false}: {product:any, adminView?: boolean}) => {
 
     return (
         <Card className="flex flex-col">
