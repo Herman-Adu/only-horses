@@ -1,100 +1,96 @@
-"use client"
-
 import Link from "next/link";
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-  } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Home, LayoutDashboard, Shirt, User } from "lucide-react";
 
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
 import { ModeToggle } from "./ModeToggle";
-import { user } from "@/dummy_data";
-
+//import { user } from "@/dummy_data";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import LogoutButton from "./LogoutButton";
 
 const SIDEBAR_LINKS = [
-	{
-		icon: Home,
-		label: "Home",
-		href: "/",
-	},
-	{
-		icon: Shirt,
-		label: "Merch",
-		href: "/merch",
-	},
+  {
+    icon: Home,
+    label: "Home",
+    href: "/",
+  },
+  {
+    icon: Shirt,
+    label: "Merch",
+    href: "/merch",
+  },
 ];
 
+const Sidebar = async () => {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
 
-const Sidebar = () => {
-    const isAdmin = true
+  const isAdmin = process.env.ADMIN_EMAIL === user?.email;
 
-    return (
-        <div className="flex lg:w-1/5 flex-col gap-3 px-2 border-r sticky left-0 top-0 h-screen">
-            <Link href="/update-profile" className="max-w-fit">
-                <Avatar className="mt-4 cursor-pointer">
-					<AvatarImage src={user.image || "/user-placeholder.png"} className="object-cover" />
-					<AvatarFallback>CN</AvatarFallback>
-				</Avatar>
+  return (
+    <div className="flex lg:w-1/5 flex-col gap-3 px-2 border-r sticky left-0 top-0 h-screen">
+      <Link href="/update-profile" className="max-w-fit">
+        <Avatar className="mt-4 cursor-pointer">
+          <AvatarImage
+            src={user?.picture || "/user-placeholder.png"}
+            className="object-cover"
+          />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      </Link>
+
+      <nav className="lex flex-col gap-6">
+        {SIDEBAR_LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="flex w-12 lg:w-full items-center gap-2 hover:bg-primary-foreground font-bold hover:text-primary px-2 py-1 rounded-full justify-center lg:justify-normal"
+          >
+            <link.icon className="w-6 h-6" />
+            <span className="hidden lg:block">{link.label}</span>
+          </Link>
+        ))}
+        {isAdmin && (
+          <Link
+            href={"/secret-dashboard"}
+            className="flex w-12 lg:w-full items-center gap-2 hover:bg-primary-foreground font-bold hover:text-primary px-2 py-1 rounded-full justify-center lg:justify-normal"
+          >
+            <LayoutDashboard className="w-6 h-6" />
+            <span className="hidden lg:block">Dashboard</span>
+          </Link>
+        )}
+
+        <DropdownMenu>
+          <div className="flex w-12 lg:w-full items-center gap-2 hover:bg-primary-foreground font-bold hover:text-primary px-2 py-1 rounded-full justify-center lg:justify-normal">
+            <DropdownMenuTrigger className="flex items-center gap-2">
+              <User className="w-6 h-6" />
+              <span className="hidden lg:block">Setting</span>
+            </DropdownMenuTrigger>
+          </div>
+
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <Link href={"#"}>
+              <DropdownMenuItem>Billing</DropdownMenuItem>
             </Link>
+            <LogoutButton />
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-            <nav  className="lex flex-col gap-6">
-                {SIDEBAR_LINKS.map((link) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className="flex w-12 lg:w-full items-center gap-2 hover:bg-primary-foreground font-bold hover:text-primary px-2 py-1 rounded-full justify-center lg:justify-normal"
-					>
-						<link.icon className="w-6 h-6" />
-						<span className="hidden lg:block">{link.label}</span>
-					</Link>
-				))}
-                {isAdmin && (
-					<Link
-						href={"/secret-dashboard"}
-						className='flex w-12 lg:w-full items-center gap-2 hover:bg-primary-foreground font-bold hover:text-primary px-2 py-1 rounded-full justify-center lg:justify-normal'
-					>
-						<LayoutDashboard className='w-6 h-6' />
-						<span className='hidden lg:block'>Dashboard</span>
-					</Link>
-				)}
+        <ModeToggle />
+      </nav>
+    </div>
+  );
+};
 
-                <DropdownMenu>
-					<div className='flex w-12 lg:w-full items-center gap-2 hover:bg-primary-foreground font-bold hover:text-primary px-2 py-1 rounded-full justify-center lg:justify-normal'>
-						<DropdownMenuTrigger className='flex items-center gap-2'>
-							<User className='w-6 h-6' />
-							<span className='hidden lg:block'>Setting</span>
-						</DropdownMenuTrigger>
-					</div>
-
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <Link href={"#"}>
-                            <DropdownMenuItem>Billing</DropdownMenuItem>
-                        </Link>
-                        <LogoutLink>
-                            <DropdownMenuItem>Logout</DropdownMenuItem>
-                        </LogoutLink>
-                    </DropdownMenuContent>                    
-				</DropdownMenu>
-
-                <ModeToggle />
-            </nav>
-        </div>
-    )
-}
-
-export default Sidebar
-
+export default Sidebar;
