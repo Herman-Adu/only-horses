@@ -1,131 +1,190 @@
-"use client"
+"use client";
 
-import UnderlinedText from '@/components/decorators/UnderlinedText'
+import UnderlinedText from "@/components/decorators/UnderlinedText";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TriangleAlert } from "lucide-react";
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@radix-ui/react-label';
-import { CldUploadWidget, CldVideoPlayer, CloudinaryUploadWidgetInfo } from 'next-cloudinary';
-import Image from 'next/image';
-import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@radix-ui/react-label";
+import {
+  CldUploadWidget,
+  CldVideoPlayer,
+  CloudinaryUploadWidgetInfo,
+} from "next-cloudinary";
+import Image from "next/image";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { createPostAction } from "../actions";
+import { useToast } from "@/components/ui/use-toast";
 
 const ContentTab = () => {
-    const [text, setText] = useState("");
-    const [mediaType, setMediaType] = useState<"video" | "image">("video");
-    const [isPublic, setIsPublic] = useState<boolean>(false);
-	const [mediaUrl, setMediaUrl] = useState<string>("");
+  const [text, setText] = useState("");
+  const [mediaType, setMediaType] = useState<"video" | "image">("video");
+  const [isPublic, setIsPublic] = useState<boolean>(false);
+  const [mediaUrl, setMediaUrl] = useState<string>("");
 
-    return (
-        <>
-            <p className='text-3xl my-5 font-bold text-center uppercase'>
-                <UnderlinedText className='decoration-wavy'>Share</UnderlinedText> Post
-            </p>
+  const { toast } = useToast();
 
-            <form>
-                <Card className='w-full max-w-md mx-auto'>
-                    <CardHeader>
-                        <CardTitle className='text-2xl'>New Post</CardTitle>
-                        <CardDescription>
-                            Share your exclusive content with your audience. Select only one video/image at a time.
-                        </CardDescription>
-                    </CardHeader>
+  const { mutate: createPost, isPending } = useMutation({
+    mutationKey: ["createPost"],
+    mutationFn: async () =>
+      createPostAction({ text, isPublic, mediaUrl, mediaType }),
+    onSuccess: () => {
+      toast({
+        title: "Post Created",
+        description: "Your post has been successfully created",
+      });
+      setText("");
+      setMediaType("video");
+      setIsPublic(false);
+      setMediaUrl("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
-                    <CardContent className='grid gap-4'>
-                        <div className='grid gap-2'>
-                            <Label htmlFor='content'>Content</Label>
-                            <Textarea
-                                id='content'
-                                placeholder="Share today's exclusive"
-                                required
-                                onChange={(e) => setText(e.target.value)}
-                            />
-                        </div>
+  return (
+    <>
+      <p className="text-3xl my-5 font-bold text-center uppercase">
+        <UnderlinedText className="decoration-wavy">Share</UnderlinedText> Post
+      </p>
 
-                        <Label>Media Type</Label>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          createPost();
+        }}
+      >
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">New Post</CardTitle>
+            <CardDescription>
+              Share your exclusive content with your audience. Select only one
+              video/image at a time.
+            </CardDescription>
+          </CardHeader>
 
-                        <RadioGroup
-							defaultValue='video'
-							value={mediaType}
-							onValueChange={(value: "image" | "video") => setMediaType(value)}
-						>
-							<div className='flex items-center space-x-2'>
-								<RadioGroupItem value='video' id='video' />
-								<Label htmlFor='video'>Video</Label>
-							</div>
-							<div className='flex items-center space-x-2'>
-								<RadioGroupItem value='image' id='image' />
-								<Label htmlFor='image'>Image</Label>
-							</div>
-						</RadioGroup>
+          <CardContent className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="content">Content</Label>
+              <Textarea
+                id="content"
+                placeholder="Share today's exclusive"
+                required
+                onChange={(e) => setText(e.target.value)}
+              />
+            </div>
 
-                        <CldUploadWidget 
-                            signatureEndpoint="/api/sign-image"
-                            onSuccess={(result, { widget }) => {
-								setMediaUrl((result.info as CloudinaryUploadWidgetInfo).secure_url);
-                                //console.log("Image secure_url: ", result.info.secure_url)
-								widget.close();
-							}}
-                        >
-                            {({ open }) => {
-                                return (
-                                    <Button onClick={() => open()} variant={"outline"} type="button">
-                                        Upload an Image
-                                    </Button>
-                                );
-                            }}
-                        </CldUploadWidget>
+            <Label>Media Type</Label>
 
-                        {mediaUrl && mediaType === "image" && (
-                            <div className='flex justify-center relative w-full h-96'>
-								<Image fill src={mediaUrl} alt='Uploaded Image' className='object-contain rounded-md' />
-							</div>
-                        )}
+            <RadioGroup
+              defaultValue="video"
+              value={mediaType}
+              onValueChange={(value: "image" | "video") => setMediaType(value)}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="video" id="video" />
+                <Label htmlFor="video">Video</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="image" id="image" />
+                <Label htmlFor="image">Image</Label>
+              </div>
+            </RadioGroup>
 
-                        {mediaUrl && mediaType === "video" && (
-							<div className='w-full mx-auto'>
-								<CldVideoPlayer width={960} height={540} className='rounded-md' src={mediaUrl} />
-							</div>
-						)}
+            <CldUploadWidget
+              signatureEndpoint="/api/sign-image"
+              onSuccess={(result, { widget }) => {
+                setMediaUrl(
+                  (result.info as CloudinaryUploadWidgetInfo).secure_url
+                );
+                //console.log("Image secure_url: ", result.info.secure_url)
+                widget.close();
+              }}
+            >
+              {({ open }) => {
+                return (
+                  <Button
+                    onClick={() => open()}
+                    variant={"outline"}
+                    type="button"
+                  >
+                    Upload an Image
+                  </Button>
+                );
+              }}
+            </CldUploadWidget>
 
-                        <div className='flex items-center space-x-2'>
-							<Checkbox
-								id='public'
-								checked={isPublic}
-								onCheckedChange={(e) => setIsPublic(e as boolean)}
-							/>
+            {mediaUrl && mediaType === "image" && (
+              <div className="flex justify-center relative w-full h-96">
+                <Image
+                  fill
+                  src={mediaUrl}
+                  alt="Uploaded Image"
+                  className="object-contain rounded-md"
+                />
+              </div>
+            )}
 
-							<Label
-								htmlFor='public'
-								className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
-							>
-								Mark as public
-							</Label>
-						</div>
+            {mediaUrl && mediaType === "video" && (
+              <div className="w-full mx-auto">
+                <CldVideoPlayer
+                  width={960}
+                  height={540}
+                  className="rounded-md"
+                  src={mediaUrl}
+                />
+              </div>
+            )}
 
-                        <Alert variant='default' className='text-yellow-400'>
-							<TriangleAlert className='h-4 w-4 !text-yellow-400' />
-							<AlertTitle>Warning</AlertTitle>
-							<AlertDescription>Public posts will be visible to all users.</AlertDescription>
-						</Alert>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="public"
+                checked={isPublic}
+                onCheckedChange={(e) => setIsPublic(e as boolean)}
+              />
 
-                        <CardFooter>
-                            <Button className='w-full' type='submit'>
-                               Creating Post
-                            </Button>
-                        </CardFooter>
-							
-						
+              <Label
+                htmlFor="public"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Mark as public
+              </Label>
+            </div>
 
+            <Alert variant="default" className="text-yellow-400">
+              <TriangleAlert className="h-4 w-4 !text-yellow-400" />
+              <AlertTitle>Warning</AlertTitle>
+              <AlertDescription>
+                Public posts will be visible to all users.
+              </AlertDescription>
+            </Alert>
 
-                    </CardContent>
-                </Card>
-            </form>
-        </>
-    )
-}
+            <CardFooter>
+              <Button className="w-full" type="submit" disabled={isPending}>
+                {isPending ? "Creating Posts" : "Create Post"}
+              </Button>
+            </CardFooter>
+          </CardContent>
+        </Card>
+      </form>
+    </>
+  );
+};
 
-export default ContentTab
+export default ContentTab;
