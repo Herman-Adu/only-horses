@@ -1,5 +1,8 @@
 import BaseLayout from '@/components/BaseLayout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ContentTab from './content/ContentTab';
+import StoreTab from './store/StoreTab';
+import AnalyticsTab from './analytics/AnalyticsTab';
 
 
 const Page = () => {
@@ -18,8 +21,15 @@ const Page = () => {
 						Analytics
 					</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">Make changes to your account here.</TabsContent>
-        <TabsContent value="password">Change your password here.</TabsContent>
+        <TabsContent value="content">
+          <ContentTab />
+        </TabsContent>
+        <TabsContent value="store">
+          <StoreTab />
+        </TabsContent>
+        <TabsContent value="analytics">
+          <AnalyticsTab />
+        </TabsContent>
       </Tabs>
 
     </BaseLayout>
