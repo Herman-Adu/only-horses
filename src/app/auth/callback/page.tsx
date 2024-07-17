@@ -1,8 +1,26 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
+import { checkAuthStatus } from "./actions";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+const Page = () => {
+  const router = useRouter();
+
+  const { data } = useQuery({
+    queryKey: ["authCheck"],
+    queryFn: async () => await checkAuthStatus(),
+  });
+
+  useEffect(() => {
+    // first version before the stripe integration
+    if (data?.success || data?.success === false) {
+      router.push("/");
+    }
+  }, [data, router]);
+
   return (
     <div className="mt-20 w-full flex justify-center">
       <div className="flex flex-col items-center gap-2">
@@ -14,4 +32,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
