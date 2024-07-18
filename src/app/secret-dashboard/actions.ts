@@ -17,17 +17,11 @@ export async function createPostAction({
   mediaType,
   text,
 }: PostArgs) {
-  // de-structure getUser() function from kinde server session
-  const { getUser } = getKindeServerSession();
+  // check if admin
+  const admin = await checkIfAdmin();
 
-  // await  getUser() function to pull down the user
-  const user = await getUser();
-
-  // check if user sending the request is admin
-  const isAdmin = user?.email === process.env.ADMIN_EMAIL;
-
-  // if not throw error
-  if (!user || !isAdmin) {
+  //Not admin user - Only admin can create posts
+  if (!admin) {
     throw new Error("Unauthorised");
   }
 
@@ -36,17 +30,93 @@ export async function createPostAction({
   //     throw new Error("Media URL is required");
   //   }
 
-  // otherwise creat new post with data passed in from the content tab in the dashboard
+  // Admin user - create new post
   const newPost = await prisma.post.create({
     data: {
       text,
       mediaUrl,
       mediaType,
       isPublic,
-      userId: user.id,
+      userId: admin.id,
     },
   });
 
   // handle this logic in the form submit in the content tab
   return { success: true, post: newPost };
+}
+
+export async function getAllProductsAction() {
+  const admin = await checkIfAdmin();
+
+  if (!admin) {
+    throw new Error("Unauthorised");
+  }
+
+  // get all products from database
+  const products = await prisma.product.findMany();
+
+  //  return products
+  return products;
+}
+
+type ProductArgs = {
+  name: string;
+  image: string;
+  price: string;
+};
+
+export async function addNewProductToStoreAction({
+  name,
+  image,
+  price,
+}: ProductArgs) {
+  // check if admin
+  const admin = await checkIfAdmin();
+
+  // Only admin can add products to the database
+  if (!admin) {
+    throw new Error("Unauthorised");
+  }
+
+  // check we have all the data needed to add a new product
+  if (!name || !image || !price) {
+    throw new Error("Please provide all the required fields");
+  }
+
+  // get price in cents
+  const priceInCents = Math.round(parseFloat(price) * 100);
+
+  // checkk if price is a number
+  if (isNaN(priceInCents)) {
+    throw new Error("Price must be a number");
+  }
+
+  // create the new product in datsbase
+  const newProduct = await prisma.product.create({
+    data: {
+      image,
+      price: priceInCents,
+      name,
+    },
+  });
+
+  // handle this logic in the add new product form
+  return { success: true, product: newProduct };
+}
+
+async function checkIfAdmin() {
+  // de=structure getUser function from kinde auth
+  const { getUser } = getKindeServerSession();
+
+  // get the user by await  getUser() function
+  const user = await getUser();
+
+  // check if user sending the request is admin
+  const isAdmin = user?.email === process.env.ADMIN_EMAIL;
+
+  // if there is no yser or user is not admin return false
+  if (!user || !isAdmin) return false;
+
+  // we have an admin user
+  return user;
 }
