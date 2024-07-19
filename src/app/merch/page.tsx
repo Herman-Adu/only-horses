@@ -2,7 +2,6 @@ import BaseLayout from "@/components/BaseLayout";
 import UnderlinedText from "@/components/decorators/UnderlinedText";
 import ProductCard from "@/components/ProductCard";
 import prisma from "@/db/prisma";
-//import { products } from "@/dummy_data";
 
 const page = async () => {
   const products = await prisma.product.findMany({
