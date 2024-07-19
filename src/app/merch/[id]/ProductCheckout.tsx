@@ -26,7 +26,7 @@ const ProductCheckout = ({ product }: { product: Product }) => {
         <h1 className="text-2xl md:text-4xl font-bold">{product.name}</h1>
 
         <p className="text-muted-foreground text-base">
-          {centsToDollars(product.price)}
+          £{centsToDollars(product.price)}
         </p>
 
         <Label className="mt-5 inline-block">Size</Label>
