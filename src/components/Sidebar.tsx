@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import { Home, LayoutDashboard, Shirt, User } from "lucide-react";
 
 import {
@@ -13,9 +12,9 @@ import {
 } from "./ui/dropdown-menu";
 
 import { ModeToggle } from "./ModeToggle";
-//import { user } from "@/dummy_data";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import LogoutButton from "./LogoutButton";
+import { getUserProfileAction } from "@/app/update-profile/actions";
 
 const SIDEBAR_LINKS = [
   {
@@ -34,6 +33,8 @@ const Sidebar = async () => {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
+  const userProfile = await getUserProfileAction();
+
   const isAdmin = process.env.ADMIN_EMAIL === user?.email;
 
   return (
@@ -41,7 +42,7 @@ const Sidebar = async () => {
       <Link href="/update-profile" className="max-w-fit">
         <Avatar className="mt-4 cursor-pointer">
           <AvatarImage
-            src={user?.picture || "/user-placeholder.png"}
+            src={userProfile?.image || user?.picture || "/user-placeholder.png"}
             className="object-cover"
           />
           <AvatarFallback>CN</AvatarFallback>
