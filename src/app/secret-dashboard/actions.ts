@@ -52,10 +52,8 @@ export async function getAllProductsAction() {
     throw new Error("Unauthorised");
   }
 
-  // get all products from database
   const products = await prisma.product.findMany();
 
-  //  return products
   return products;
 }
 
@@ -70,10 +68,8 @@ export async function addNewProductToStoreAction({
   image,
   price,
 }: ProductArgs) {
-  // check if admin
   const admin = await checkIfAdmin();
 
-  // Only admin can add products to the database
   if (!admin) {
     throw new Error("Unauthorised");
   }
@@ -104,6 +100,32 @@ export async function addNewProductToStoreAction({
   return { success: true, product: newProduct };
 }
 
+export async function toggleProductArchiveAction(productId: string) {
+  const isAdmin = await checkIfAdmin();
+
+  if (!isAdmin) {
+    throw new Error("Unauthorized");
+  }
+
+  // find the product to toogle
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  // update isArchived field on product
+  const updatedProduct = await prisma.product.update({
+    where: { id: productId },
+    data: {
+      isArchived: !product.isArchived,
+    },
+  });
+
+  // // handle this logic in the product card archive button
+  return { success: true, product: updatedProduct };
+}
+
 async function checkIfAdmin() {
   // de=structure getUser function from kinde auth
   const { getUser } = getKindeServerSession();
@@ -114,7 +136,7 @@ async function checkIfAdmin() {
   // check if user sending the request is admin
   const isAdmin = user?.email === process.env.ADMIN_EMAIL;
 
-  // if there is no yser or user is not admin return false
+  // if there is no user or user is not admin return false
   if (!user || !isAdmin) return false;
 
   // we have an admin user
