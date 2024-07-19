@@ -25,6 +25,7 @@ const ProductCard = ({
     mutationKey: ["toggleArchive"],
     mutationFn: async () => await toggleProductArchiveAction(product.id),
     onSuccess: () => {
+      // refresh products - update the ui
       queryClient.invalidateQueries({ queryKey: ["getAllProducts"] });
       toast({
         title: "Success",

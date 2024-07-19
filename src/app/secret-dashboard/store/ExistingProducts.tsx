@@ -4,7 +4,7 @@ import ProductCard from "@/components/ProductCard";
 import ProductSkeleton from "@/components/skeleton/ProductSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProductsAction } from "../actions";
-import { products } from "@/dummy_data";
+//import { products } from "@/dummy_data";
 import { X } from "lucide-react";
 
 const ExistingProducts = () => {
