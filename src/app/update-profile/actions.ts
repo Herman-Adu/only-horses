@@ -29,17 +29,20 @@ export async function updateUserProfileAction({
 
   if (!user) throw new Error("Unauthorized");
 
-  // allows only fields you need rather than passing the wohle user object for typescript
+  // allows only fields you need rather than passing the wohle user object for typescript using a partial user generic type
   const updatedFields: Partial<User> = {};
 
+  // fields to pass in
   if (name) updatedFields.name = name;
   if (image) updatedFields.image = image;
 
+  // update the user
   const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: updatedFields,
   });
 
+  // revalidate get all the data for /update-profile from the cache
   revalidatePath("/update-profile");
 
   return { success: true, user: updatedUser };

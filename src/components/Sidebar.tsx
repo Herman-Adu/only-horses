@@ -42,7 +42,7 @@ const Sidebar = async () => {
       <Link href="/update-profile" className="max-w-fit">
         <Avatar className="mt-4 cursor-pointer">
           <AvatarImage
-            src={userProfile?.image || user?.picture || "/user-placeholder.png"}
+            src={userProfile?.image || "/user-placeholder.png"}
             className="object-cover"
           />
           <AvatarFallback>CN</AvatarFallback>
