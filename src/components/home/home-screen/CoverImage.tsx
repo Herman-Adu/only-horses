@@ -23,6 +23,7 @@ const CoverImage = async () => {
     },
   });
 
+  // fomat total likes for all post 1M, 10K 200K likes
   function formatNumber(num: number) {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
