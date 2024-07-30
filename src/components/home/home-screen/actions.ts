@@ -44,3 +44,52 @@ export async function deletePostAction(postId: string) {
 
   return { success: true };
 }
+
+export async function likePostAction(postId: string) {
+  // destructure getUser from kinde server session
+  const { getUser } = getKindeServerSession();
+  // get the user
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  // get the useer profile
+  const userProfile = await prisma.user.findUnique({ where: { id: user.id } });
+  // check if the user is subscribed
+  if (!userProfile?.isSubscribed) return;
+
+  // find the post and likes for the user
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { likes: true, likesList: { where: { userId: user.id } } },
+  });
+
+  if (!post) throw new Error("Post not found");
+
+  // update likesList
+  let newLikes: number;
+  if (post.likesList.length > 0) {
+    newLikes = Math.max(post.likes - 1, 0);
+    // find likes we are currently deleting
+    await prisma.like.deleteMany({
+      where: { postId: postId, userId: user.id },
+    });
+  } else {
+    newLikes = post.likes + 1;
+
+    // add new likes
+    await prisma.like.create({
+      data: { postId: postId, userId: user.id },
+    });
+  }
+
+  // update the post with new number of likes
+  await prisma.post.update({
+    where: { id: postId },
+    data: { likes: newLikes },
+  });
+
+  return { success: true };
+}

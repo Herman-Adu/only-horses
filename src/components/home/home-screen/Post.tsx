@@ -16,8 +16,8 @@ import {
 import { CldVideoPlayer } from "next-cloudinary";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { deletePostAction } from "./actions";
+import { useEffect, useState } from "react";
+import { deletePostAction, likePostAction } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
 
 //type PostWithComments = PostType & {comments: {text: string, user: User}[] }
@@ -42,7 +42,7 @@ const Post = ({
   isSubscribed: boolean;
   admin: User;
 }) => {
-  const [isLike, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   const { user } = useKindeBrowserClient();
 
   const { toast } = useToast();
@@ -66,6 +66,30 @@ const Post = ({
       });
     },
   });
+
+  const { mutate: likePost } = useMutation({
+    mutationKey: ["likePost"],
+    mutationFn: async () => {
+      post.likes += isLiked ? -1 : 1;
+      setIsLiked(!isLiked);
+      // implement useOptimisticUpdate hook instead of post.likes += isLiked ? -1 : 1; for streamline optimisation of the like update
+      await likePostAction(post.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (post.likesList && user?.id) setIsLiked(post.likesList.length > 0);
+  }, [post.likesList, user?.id]);
 
   return (
     <div className="flex flex-col gap-3 p-3 border-t">
@@ -154,18 +178,25 @@ const Post = ({
         <div className="flex gap-1 items-center">
           <Heart
             className={cn("w-5 h-5 cursor-pointer", {
-              "text-red-500 fill-red-500": isLike,
+              "text-red-500 fill-red-500": isLiked,
             })}
-            onClick={() => setIsLiked(!isLike)}
+            onClick={() => {
+              if (!isSubscribed) return;
+              likePost();
+            }}
           />
 
-          <span className="text-xs text-zinc-400 tracking-tighter">55</span>
+          <span className="text-xs text-zinc-400 tracking-tighter">
+            {post.likes}
+          </span>
         </div>
 
         <div className="flex gap-1 items-center">
           <MessageCircle className="w-5 h-5 cursor-pointer" />
 
-          <span className="text-xs text-zinc-400 tracking-tighter">55</span>
+          <span className="text-xs text-zinc-400 tracking-tighter">
+            {post.comments.length > 0 ? post.comments.length : 0}
+          </span>
         </div>
       </div>
     </div>
