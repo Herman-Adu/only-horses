@@ -2,7 +2,6 @@
 
 import { CldVideoPlayer } from "next-cloudinary";
 
-
 const TodaysHighlight = () => {
   return (
     <div className="w-full md:w-3/4 mx-auto">
@@ -13,7 +12,7 @@ const TodaysHighlight = () => {
         src="highlighted-vid_rrfnbe"
       />
     </div>
-  )
-}
+  );
+};
 
-export default TodaysHighlight
+export default TodaysHighlight;
