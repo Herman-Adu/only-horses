@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { Post as PostType, Prisma, User } from "@prisma/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Heart,
   ImageIcon,
@@ -16,6 +17,8 @@ import { CldVideoPlayer } from "next-cloudinary";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { deletePostAction } from "./actions";
+import { useToast } from "@/components/ui/use-toast";
 
 //type PostWithComments = PostType & {comments: {text: string, user: User}[] }
 
@@ -42,6 +45,28 @@ const Post = ({
   const [isLike, setIsLiked] = useState(false);
   const { user } = useKindeBrowserClient();
 
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { mutate: deletePost } = useMutation({
+    mutationKey: ["deletePost"],
+    mutationFn: async () => await deletePostAction(post.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="flex flex-col gap-3 p-3 border-t">
       <div className="flex items-center justify-between">
@@ -62,7 +87,10 @@ const Post = ({
           </p>
 
           {admin.id === user?.id && (
-            <Trash className="w-5 h-5 text-muted-foreground hover:text-red-500 cursor-pointer" />
+            <Trash
+              className="w-5 h-5 text-muted-foreground hover:text-red-500 cursor-pointer"
+              onClick={() => deletePost()}
+            />
           )}
         </div>
       </div>
