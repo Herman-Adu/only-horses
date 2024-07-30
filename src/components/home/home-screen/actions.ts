@@ -5,6 +5,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 // like, comment, delete, get all posts
 
+// get all posts action
 export async function getPostsAction() {
   const { getUser } = getKindeServerSession();
 
@@ -45,6 +46,7 @@ export async function deletePostAction(postId: string) {
   return { success: true };
 }
 
+// like post action
 export async function likePostAction(postId: string) {
   // destructure getUser from kinde server session
   const { getUser } = getKindeServerSession();
@@ -89,6 +91,37 @@ export async function likePostAction(postId: string) {
   await prisma.post.update({
     where: { id: postId },
     data: { likes: newLikes },
+  });
+
+  return { success: true };
+}
+
+// comment post action
+export async function commentOnPostAction(postId: string, text: string) {
+  // destructure getUser from get kinde server session
+  const { getUser } = getKindeServerSession();
+
+  // get the user from the getUser()
+  const user = await getUser();
+
+  // check for a user as could be null, to maake typescript happy
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  // get the useer profile
+  const userProfile = await prisma.user.findUnique({ where: { id: user.id } });
+
+  // check if the user is subscribed
+  if (!userProfile?.isSubscribed) return;
+
+  // if the user is subscribed create new comment
+  const comment = await prisma.comment.create({
+    data: {
+      text,
+      postId,
+      userId: user.id,
+    },
   });
 
   return { success: true };
