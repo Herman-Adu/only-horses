@@ -121,11 +121,39 @@ export async function POST(req: Request) {
             }
           }
         }
+        break;
       }
-    }
+      case "customer.subscription.deleted": {
+        // get teh subscription, type it as Stripe.Subscription
+        const subscription = await stripe.subscriptions.retrieve(
+          (data.object as Stripe.Subscription).id
+        );
+        console.log("Subscription: ", subscription);
 
-    return NextResponse.json({});
+        // get the user via mapped customer Id
+        const user = await prisma.user.findUnique({
+          where: { customerId: subscription.customer as string },
+        });
+
+        // if we gat a user, make the isSubscribe field false
+        if (user) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { isSubscribed: false },
+          });
+        } else {
+          console.error("User not found for the subscription deleted event.");
+          throw new Error("User not found for the subscription deleted event.");
+        }
+        break;
+      }
+
+      default:
+        console.warn(`Unhandled event type: ${eventType}`);
+        break;
+    }
 
     //
   } catch (error) {}
+  return NextResponse.json({});
 }
