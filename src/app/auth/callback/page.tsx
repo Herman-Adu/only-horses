@@ -5,9 +5,12 @@ import { Loader } from "lucide-react";
 import { checkAuthStatus } from "./actions";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 const Page = () => {
   const router = useRouter();
+  // first destructor the user, isLoading with the alias checkingAuth
+  const { user, isLoading: checkingAuth } = useKindeBrowserClient();
 
   const { data } = useQuery({
     queryKey: ["authCheck"],
@@ -16,10 +19,25 @@ const Page = () => {
 
   useEffect(() => {
     // first version before the stripe integration
-    if (data?.success || data?.success === false) {
+    /* if (data?.success || data?.success === false) {
+      router.push("/");
+    } */
+
+    // first get the stripe payment URL from local storage
+    const stripeUrl = localStorage.getItem("stripeRedirectUrl");
+
+    // check if we have a stripe redirect URL, a user email
+    if (stripeUrl && user?.email && !checkingAuth) {
+      localStorage.removeItem("stripeRedirectUrl");
+      window.location.href = stripeUrl + "?prefilled_email=" + user.email;
+    } else if (!user && !checkingAuth) {
       router.push("/");
     }
-  }, [data, router]);
+  }, [router, checkingAuth, user]);
+
+  if (!checkingAuth && data?.success) {
+    return router.push("/");
+  }
 
   return (
     <div className="mt-20 w-full flex justify-center">

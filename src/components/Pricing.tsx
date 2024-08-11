@@ -35,6 +35,7 @@ export const frequencies: PricingTierFrequency[] = [
   { id: "2", value: "2", label: "Annually", priceSuffix: "/year" },
 ];
 
+// make sure prices match the prices set in stripe in stripe
 export const tiers: PricingTier[] = [
   {
     name: "Premium Plan",

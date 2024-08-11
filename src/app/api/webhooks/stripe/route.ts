@@ -49,6 +49,7 @@ export async function POST(req: Request) {
         const customerId = session.customer as string;
         const customerDetails =
           session.customer_details as Stripe.Checkout.Session.CustomerDetails;
+
         const lineItems = session.line_items?.data || [];
 
         // check if we got the email of the customer
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
           // if no user throw error
           if (!user) throw new Error("User not found");
 
-          // when we want to delete the user's subscription.
+          // bind the customer ID to the user coming from stripe, important when we want to delete the user's subscription.
           if (!user.customerId) {
             await prisma.user.update({
               where: { id: user.id },
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
 
               // The upsert operation in Prisma is a combination of update and insert. It allows you to update an existing record if it exists or create a new one if it doesn't.
               // update or create  a subscription
-              const subscription = await prisma.subscription.upsert({
+              await prisma.subscription.upsert({
                 where: { userId: user.id },
                 update: {
                   planId: priceId,
@@ -114,8 +115,6 @@ export async function POST(req: Request) {
                 where: { id: user.id },
                 data: { isSubscribed: true },
               });
-
-              //
             } else {
               // Todo => Handle // one time payment, for our t-shirts or donations
             }
@@ -128,7 +127,7 @@ export async function POST(req: Request) {
         const subscription = await stripe.subscriptions.retrieve(
           (data.object as Stripe.Subscription).id
         );
-        console.log("Subscription: ", subscription);
+        //console.log("Subscription: ", subscription);
 
         // get the user via mapped customer Id
         const user = await prisma.user.findUnique({

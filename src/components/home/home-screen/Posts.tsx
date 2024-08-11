@@ -20,6 +20,8 @@ const Posts = ({
     queryFn: async () => await getPostsAction(),
   });
 
+  console.log("Post: ", posts);
+
   return (
     <div>
       {!isLoading &&
