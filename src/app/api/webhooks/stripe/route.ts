@@ -4,6 +4,12 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+import { Resend } from "resend";
+import WelcomeEmail from "@/emails/WelcomeEmail";
+
+// instaniate resend
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const webhookSecret =
   process.env.NODE_ENV === "development"
     ? process.env.STRIPE_WEBHOOK_SECRET_DEV_KEY!
@@ -91,9 +97,9 @@ export async function POST(req: Request) {
                 throw new Error("Invalid price id");
               }
 
-              // The upsert operation in Prisma is a combination of update and insert. It allows you to update an existing record if it exists or create a new one if it doesn't.
-              // update or create  a subscription
-              await prisma.subscription.upsert({
+              // The upsert operation in Prisma is a combination of update and insert. It allows you to update an
+              // existing record if it exists or create a new one if it doesn't. Update or create  a subscription
+              const subscription = await prisma.subscription.upsert({
                 where: { userId: user.id },
                 update: {
                   planId: priceId,
@@ -114,6 +120,20 @@ export async function POST(req: Request) {
               await prisma.user.update({
                 where: { id: user.id },
                 data: { isSubscribed: true },
+              });
+
+              // Todo => Send email to user for subscription
+
+              await resend.emails.send({
+                from: "OnlyHorses <onboarding@resend.dev>",
+                to: [customerDetails.email],
+                subject: "Subscription Confirmation",
+                react: WelcomeEmail({
+                  userEmail: customerDetails.email,
+                  userName: user.name,
+                  subscriptionStartDate: subscription.startDate,
+                  subscriptionEndDate: subscription.endDate,
+                }),
               });
             } else {
               // Todo => Handle // one time payment, for our t-shirts or donations
