@@ -136,7 +136,34 @@ export async function POST(req: Request) {
                 }),
               });
             } else {
-              // Todo => Handle // one time payment, for our t-shirts or donations
+              // one time payment, for our t-shirts
+              // This eles runs once user pays - payment process success => stripe webhook
+
+              const { orderId, size } = session.metadata as {
+                orderId: string;
+                size: string;
+              };
+
+              const shippingDetails = session.shipping_details?.address;
+
+              const updatedOrder = await prisma.order.update({
+                where: { id: orderId },
+                data: {
+                  isPaid: true,
+                  size,
+                  shippingAddress: {
+                    create: {
+                      address: shippingDetails?.line1 ?? "",
+                      city: shippingDetails?.city ?? "",
+                      state: shippingDetails?.state ?? "",
+                      postalCode: shippingDetails?.postal_code ?? "",
+                      country: shippingDetails?.country ?? "",
+                    },
+                  },
+                },
+              });
+
+              // Send a success email to the user
             }
           }
         }
