@@ -4,14 +4,49 @@ import UnderlinedText from "@/components/decorators/UnderlinedText";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ZoomedImage from "@/components/ZoomedImage";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { notFound, useSearchParams } from "next/navigation";
+import { checkProductPaidStatus } from "./actions";
+import { centsToDollars } from "@/lib/utils";
+
+const sizeMap: { [key: string]: string } = {
+  sm: "Small",
+  md: "Medium",
+  lg: "Large",
+  xlg: "X-Large",
+  xxlg: "XX-Large",
+};
 
 const PurchaseSummary = () => {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId") || "";
+
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["checkProductPaidStatus"],
+    queryFn: async () => await checkProductPaidStatus(orderId),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6">
+        <p className="text-center text-md mb-6">
+          Verifying your payment, please wait...
+        </p>
+        <span className="animate-spin h-10 w-10 border-t-2 border-b-2 border-sky-400 rounded-full" />
+      </div>
+    );
+  }
+
+  if (order === false) return notFound();
+
+  if (!order) return null;
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
       <div className="flex flex-col items-center">
         <ZoomedImage
-          imgSrc="/tshirts/4.png"
+          imgSrc={order?.product.image}
           className="h-96 w-96 rounded-md my-5"
         />
 
@@ -28,7 +63,9 @@ const PurchaseSummary = () => {
 
         <p className="text-muted-foreground">
           Order ID:{" "}
-          <span className="font-bold text-foreground text-sky-400">1234</span>
+          <span className="font-bold text-foreground text-sky-400">
+            {orderId}
+          </span>
         </p>
 
         <Card className="w-full my-5">
@@ -37,22 +74,22 @@ const PurchaseSummary = () => {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between">
-              <p>Only Horses T-shirt</p>
-              <p>£11.99</p>
+              <p>{order.product.name}</p>
+              <p>${centsToDollars(order.product.price)}</p>
             </div>
 
             <div className="flex justify-between">
-              <p>Size: Small</p>
+              <p>Size: {sizeMap[order.size]}</p>
               <p>Quantity: 1</p>
             </div>
 
             <div className="mt-4">
               <h3 className="font-semibold">Shipping Address</h3>
-              <p>Address: Some Address</p>
-              <p>City: Some Address</p>
-              <p>State: </p>
-              <p>Postal Code: SL6 0QF</p>
-              <p>Country: UK</p>
+              <p>Address: {order.shippingAddress?.address}</p>
+              <p>City: {order.shippingAddress?.city}</p>
+              <p>State: {order.shippingAddress?.state}</p>
+              <p>Postal Code: {order.shippingAddress?.postalCode}</p>
+              <p>Country: {order.shippingAddress?.country}</p>
             </div>
           </CardContent>
         </Card>
