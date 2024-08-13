@@ -1,11 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { centsToDollars } from "@/lib/utils";
-
 import { PoundSterlingIcon } from "lucide-react";
-import React from "react";
+import { getDashboardDataAction } from "../actions";
 
-const AnalyticsTab = () => {
+const AnalyticsTab = async () => {
+  // de-structure totalRevenue, totalSubscriptions, totalSales from getDashboardDataAction
+  const { totalRevenue, totalSubscriptions, totalSales } =
+    await getDashboardDataAction();
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-5">
@@ -15,7 +18,7 @@ const AnalyticsTab = () => {
             <PoundSterlingIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">£25,345</div>
+            <div className="text-2xl font-bold">£{totalRevenue || 0}</div>
           </CardContent>
         </Card>
 
@@ -25,7 +28,7 @@ const AnalyticsTab = () => {
             <PoundSterlingIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+3700</div>
+            <div className="text-2xl font-bold">+{totalSales}</div>
           </CardContent>
         </Card>
 
@@ -35,7 +38,7 @@ const AnalyticsTab = () => {
             <PoundSterlingIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+45</div>
+            <div className="text-2xl font-bold">+{totalSubscriptions}</div>
           </CardContent>
         </Card>
       </div>
@@ -50,25 +53,29 @@ const AnalyticsTab = () => {
 
 export default AnalyticsTab;
 
-const RecentSubscriptions = () => {
+const RecentSubscriptions = async () => {
   // hard coded recednt subscriptions
-  const recentSubscriptions = [
-    {
-      user: {
-        name: "John Doe",
-        email: "john@email.com",
-        image: "",
-      },
-      price: 10_00, // 1000 cents
-    },
-    {
-      user: {
-        name: "Jane Doe",
-        email: "jane@email.com",
-      },
-      price: 20_00,
-    },
-  ];
+  // const recentSubscriptions = [
+  //   {
+  //     user: {
+  //       name: "John Doe",
+  //       email: "john@email.com",
+  //       image: "",
+  //     },
+  //     price: 10_00, // 1000 cents
+  //   },
+  //   {
+  //     user: {
+  //       name: "Jane Doe",
+  //       email: "jane@email.com",
+  //     },
+  //     price: 20_00,
+  //   },
+  // ];
+
+  const { recentSubscriptions } = await getDashboardDataAction();
+
+  //console.log("RecentSubscriptions:  ", recentSubscriptions);
 
   return (
     <Card className="flex-1">
@@ -115,8 +122,8 @@ const RecentSubscriptions = () => {
   );
 };
 
-const RecentSales = () => {
-  const recentSales = [
+const RecentSales = async () => {
+  /* const recentSales = [
     {
       user: {
         name: "John Doe",
@@ -133,7 +140,9 @@ const RecentSales = () => {
       },
       price: 20_00,
     },
-  ];
+  ]; */
+
+  const { recentSales } = await getDashboardDataAction();
 
   return (
     <Card className="flex-1">

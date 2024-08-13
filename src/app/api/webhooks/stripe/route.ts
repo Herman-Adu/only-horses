@@ -123,8 +123,8 @@ export async function POST(req: Request) {
                 data: { isSubscribed: true },
               });
 
-              // send a success welcome email to the user check wwe are not production
-              // sending emails from <onboarding@resend.dev> in production is banned and yu account will be suspended
+              // send a success welcome email to the user, check wwe are not production
+              // sending emails from <onboarding@resend.dev> in production is banned and your account will be suspended
               if (process.env.NODE_ENV !== "production") {
                 await resend.emails.send({
                   from: "OnlyHorses <onboarding@resend.dev>",
@@ -172,8 +172,8 @@ export async function POST(req: Request) {
                 },
               });
 
-              // send a success receipt email to the user check wwe are not production
-              // sending emails from <onboarding@resend.dev> in production is banned and yu account will be suspended
+              // send a success receipt email to the user, check wwe are not production
+              // sending emails from <onboarding@resend.dev> in production is banned and your account will be suspended
               if (process.env.NODE_ENV !== "production") {
                 await resend.emails.send({
                   from: "OnlyHorse <onboarding@resend.dev>",
