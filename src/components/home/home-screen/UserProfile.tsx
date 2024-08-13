@@ -19,7 +19,7 @@ const UserProfile = async () => {
 
   return (
     <div className="flex flex-col">
-      <CoverImage />
+      <CoverImage adminName={admin?.name!} />
 
       <div className="flex flex-col p-4">
         {/* User profile section */}

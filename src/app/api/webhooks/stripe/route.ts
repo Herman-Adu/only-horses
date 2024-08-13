@@ -6,6 +6,7 @@ import Stripe from "stripe";
 
 import { Resend } from "resend";
 import WelcomeEmail from "@/emails/WelcomeEmail";
+import ReceiptEmail from "@/emails/ReceiptEmail";
 
 // instaniate resend
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -122,19 +123,21 @@ export async function POST(req: Request) {
                 data: { isSubscribed: true },
               });
 
-              // Todo => Send email to user for subscription
-
-              await resend.emails.send({
-                from: "OnlyHorses <onboarding@resend.dev>",
-                to: [customerDetails.email],
-                subject: "Subscription Confirmation",
-                react: WelcomeEmail({
-                  userEmail: customerDetails.email,
-                  userName: user.name,
-                  subscriptionStartDate: subscription.startDate,
-                  subscriptionEndDate: subscription.endDate,
-                }),
-              });
+              // send a success welcome email to the user check wwe are not production
+              // sending emails from <onboarding@resend.dev> in production is banned and yu account will be suspended
+              if (process.env.NODE_ENV !== "production") {
+                await resend.emails.send({
+                  from: "OnlyHorses <onboarding@resend.dev>",
+                  to: [customerDetails.email],
+                  subject: "Subscription Confirmation",
+                  react: WelcomeEmail({
+                    userEmail: customerDetails.email,
+                    userName: user.name,
+                    subscriptionStartDate: subscription.startDate,
+                    subscriptionEndDate: subscription.endDate,
+                  }),
+                });
+              }
             } else {
               // one time payment, for our t-shirts
               // This eles runs once user pays - payment process success => stripe webhook
@@ -161,9 +164,32 @@ export async function POST(req: Request) {
                     },
                   },
                 },
+                select: {
+                  id: true,
+                  product: true,
+                  size: true,
+                  shippingAddress: true,
+                },
               });
 
-              // Send a success email to the user
+              // send a success receipt email to the user check wwe are not production
+              // sending emails from <onboarding@resend.dev> in production is banned and yu account will be suspended
+              if (process.env.NODE_ENV !== "production") {
+                await resend.emails.send({
+                  from: "OnlyHorse <onboarding@resend.dev>",
+                  to: [customerDetails.email],
+                  subject: "Order Confirmation",
+                  react: ReceiptEmail({
+                    orderDate: new Date(),
+                    orderNumber: updatedOrder.id,
+                    productImage: updatedOrder.product.image,
+                    productName: updatedOrder.product.name,
+                    productSize: updatedOrder.size,
+                    shippingAddress: updatedOrder.shippingAddress!,
+                    userName: user.name!,
+                  }),
+                });
+              }
             }
           }
         }
