@@ -24,7 +24,7 @@ const WelcomeEmail = ({
   subscriptionStartDate: Date;
   subscriptionEndDate: Date;
 }) => {
-  // TODO=> ADD THE PROD URL
+  // TODO => ADD THE PROD URL
   const BASE_URL =
     process.env.NODE_ENV === "development" ? "http://localhost:3000" : "";
 
@@ -36,9 +36,9 @@ const WelcomeEmail = ({
         <Container style={container}>
           <Section style={message}>
             <Img
-              // src={`${BASE_URL}/horse-1.png`}
+              src={`${BASE_URL}/horse-1.png`}
               // todo => delete this one below
-              src={`https://i.ibb.co/CV1mKKY/horse-1.jpg`}
+              //src={`https://i.ibb.co/CV1mKKY/horse-1.jpg`}
               width="600"
               height="400"
               alt="welcome icon"
