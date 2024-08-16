@@ -123,21 +123,39 @@ export async function POST(req: Request) {
                 data: { isSubscribed: true },
               });
 
-              // send a success welcome email to the user, check wwe are not production
+              // Send a success welcome email to the user, check wwe are not production
+              // Sending emails from <onboarding@resend.dev> in production is banned and your account will be suspended
+              // I have a domain configured on resend to send mails from adudev.co.uk
+
+              await resend.emails.send({
+                from: "OnlyHorses <onboardingadudev.co.uk>",
+                to: [customerDetails.email],
+                subject: "Subscription Confirmation",
+                react: WelcomeEmail({
+                  userEmail: customerDetails.email,
+                  userName: user.name,
+                  subscriptionStartDate: subscription.startDate,
+                  subscriptionEndDate: subscription.endDate,
+                }),
+              });
+
               // sending emails from <onboarding@resend.dev> in production is banned and your account will be suspended
-              if (process.env.NODE_ENV !== "production") {
-                await resend.emails.send({
-                  from: "OnlyHorses <onboarding@resend.dev>",
-                  to: [customerDetails.email],
-                  subject: "Subscription Confirmation",
-                  react: WelcomeEmail({
-                    userEmail: customerDetails.email,
-                    userName: user.name,
-                    subscriptionStartDate: subscription.startDate,
-                    subscriptionEndDate: subscription.endDate,
-                  }),
-                });
-              }
+              // check for production environment
+              // if (process.env.NODE_ENV !== "production") {
+              //   await resend.emails.send({
+              //     from: "OnlyHorses <onboardingadudev.co.uk>",
+              //     to: [customerDetails.email],
+              //     subject: "Subscription Confirmation",
+              //     react: WelcomeEmail({
+              //       userEmail: customerDetails.email,
+              //       userName: user.name,
+              //       subscriptionStartDate: subscription.startDate,
+              //       subscriptionEndDate: subscription.endDate,
+              //     }),
+              //   });
+              // }
+
+              //
             } else {
               // one time payment, for our t-shirts
               // This eles runs once user pays - payment process success => stripe webhook
@@ -174,22 +192,42 @@ export async function POST(req: Request) {
 
               // send a success receipt email to the user, check wwe are not production
               // sending emails from <onboarding@resend.dev> in production is banned and your account will be suspended
-              if (process.env.NODE_ENV !== "production") {
-                await resend.emails.send({
-                  from: "OnlyHorse <onboarding@resend.dev>",
-                  to: [customerDetails.email],
-                  subject: "Order Confirmation",
-                  react: ReceiptEmail({
-                    orderDate: new Date(),
-                    orderNumber: updatedOrder.id,
-                    productImage: updatedOrder.product.image,
-                    productName: updatedOrder.product.name,
-                    productSize: updatedOrder.size,
-                    shippingAddress: updatedOrder.shippingAddress!,
-                    userName: user.name!,
-                  }),
-                });
-              }
+              // I have a domain configured on resend to send mails from adudev.co.uk
+
+              await resend.emails.send({
+                from: "OnlyHorse <onboarding@adudev.co.uk>",
+                to: [customerDetails.email],
+                subject: "Order Confirmation",
+                react: ReceiptEmail({
+                  orderDate: new Date(),
+                  orderNumber: updatedOrder.id,
+                  productImage: updatedOrder.product.image,
+                  productName: updatedOrder.product.name,
+                  productSize: updatedOrder.size,
+                  shippingAddress: updatedOrder.shippingAddress!,
+                  userName: user.name!,
+                }),
+              });
+
+              // remove production check as i haave a domain configured on resend to send mails from
+              // if (process.env.NODE_ENV !== "production") {
+              //   await resend.emails.send({
+              //     from: "OnlyHorse <onboarding@adudev.co.uk>",
+              //     to: [customerDetails.email],
+              //     subject: "Order Confirmation",
+              //     react: ReceiptEmail({
+              //       orderDate: new Date(),
+              //       orderNumber: updatedOrder.id,
+              //       productImage: updatedOrder.product.image,
+              //       productName: updatedOrder.product.name,
+              //       productSize: updatedOrder.size,
+              //       shippingAddress: updatedOrder.shippingAddress!,
+              //       userName: user.name!,
+              //     }),
+              //   });
+              // }
+
+              //
             }
           }
         }
